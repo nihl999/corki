@@ -24,7 +24,8 @@ CORKI_internal int PopulateContext(CORKIContext* Context);
 //Init HTTP and WebSockets
 int CORKI_Init(CORKIContext* Context);
 //Make a request in custom endpoint
-int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpoint); // Request body needed CORKI_CustomRequest(CORKIReq RequestType, char* Endpoint, ** body);
+int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpoint,
+                        char* Data = ""); // Request body needed CORKI_CustomRequest(CORKIReq RequestType, char* Endpoint, ** body);
 //GET with no body request
 int CORKI_Get(CORKIContext* Context, char* Endpoint);
 //POST with no body request

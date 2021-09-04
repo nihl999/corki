@@ -1,7 +1,7 @@
 #include "hlcu.h"
 #include "utils.h"
 
-// TODO(nihilo): Stop using string.h, make own strtok, atoi, strcat 
+// TODO(nihilo): Stop using string.h, make own strtok, atoi 
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +16,10 @@ int CORKI_Init(CORKIContext* Context)
         Context->request_context = curl_easy_init();
         if(Context->request_context)
         {
+            struct curl_slist *headers = NULL;
+            headers = curl_slist_append(headers, "Accept: */*");
+            headers = curl_slist_append(headers, "Content-Type: application/json");
+            curl_easy_setopt(Context->request_context, CURLOPT_HTTPHEADER, headers);
             curl_easy_setopt(Context->request_context, 
                              CURLOPT_USERNAME, 
                              "riot");
@@ -40,7 +44,7 @@ CORKI_internal int PopulateContext(CORKIContext* Context)
         
         char* tokens[4];
         char* temp_token;
-        strcat(dir, "\\lockfile");
+        ConcatenateString(dir, "\\lockfile");
         FILE *lockfile = fopen(dir, "r");
         if(lockfile != NULL)
         {
@@ -54,7 +58,7 @@ CORKI_internal int PopulateContext(CORKIContext* Context)
                 }
                 int port =  atoi(tokens[2]);
                 sprintf(Context->lcu_base_url, "https://127.0.0.1:%d", port);
-                strcpy(Context->auth_token, tokens[3]);
+                CopyString(Context->auth_token, tokens[3]);
                 return 1;
             }
         }
@@ -62,19 +66,32 @@ CORKI_internal int PopulateContext(CORKIContext* Context)
     return 0;
 }
 
-int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpoint)
+int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpoint,
+                        char* Data)
 {
     int res;
     char URL[512];
     if(Context->request_context)
     {
-        strcpy(URL, Context->lcu_base_url);
-        strcat(URL, Endpoint);
+        CopyString(URL, Context->lcu_base_url);
+        ConcatenateString(URL, Endpoint);
         switch(RequestType)
         {
             case CORKIGet:
             {
-                
+                curl_easy_setopt(Context->request_context, 
+                                 CURLOPT_URL, 
+                                 URL);
+                curl_easy_setopt(Context->request_context, CURLOPT_HTTPGET, 1L);
+                //debug option v
+                curl_easy_setopt(Context->request_context, CURLOPT_VERBOSE, 1L);
+                res = curl_easy_perform(Context->request_context);
+                if(res == CURLE_OK)
+                {
+                    curl_easy_setopt(Context->request_context, CURLOPT_URL, Context->lcu_base_url);
+                    return 1;
+                }
+                return 0;
             }break;
             case CORKIPost:
             {
@@ -82,7 +99,9 @@ int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpo
                                  CURLOPT_URL, 
                                  URL);
                 curl_easy_setopt(Context->request_context, CURLOPT_POST, 1L);
-                curl_easy_setopt(Context->request_context, CURLOPT_POSTFIELDSIZE, 0L);
+                curl_easy_setopt(Context->request_context, CURLOPT_POSTFIELDSIZE, (long)strlen(Data));
+                curl_easy_setopt(Context->request_context, CURLOPT_POSTFIELDS, Data);
+                //debug option v
                 curl_easy_setopt(Context->request_context, CURLOPT_VERBOSE, 1L);
                 res = curl_easy_perform(Context->request_context);
                 if(res == CURLE_OK)
@@ -94,15 +113,16 @@ int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpo
             }break;
             case CORKIPut:
             {
-                
+                return 0;
             }break;
             case CORKIDelete:
             {
-                
+                return 0;
             }break;
             default:
             {
                 // TODO(nihilo): Input error handling.
+                return 0;
             }
         }
         
@@ -110,16 +130,15 @@ int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpo
     return 0;
 }
 
-int CORKI_Get(char* Endpoint)
+int CORKI_Get(CORKIContext* Context, char* Endpoint)
 {
     // TODO(nihilo): Implement CustomRequest GET method
+    return CORKI_CustomRequest(Context, CORKIGet, Endpoint);
     return 0;
 }
 int CORKI_Post(CORKIContext* Context, char* Endpoint)
 {
-    
-    
-    return 0;
+    return CORKI_CustomRequest(Context, CORKIPost, Endpoint);
 }
 
 int CORKI_Cleanup(CORKIContext* Context)

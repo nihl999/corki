@@ -11,6 +11,14 @@ int main( int, char *[] )
 {
     CORKIContext hlcu;
     CORKI_Init(&hlcu);
+    CORKI_Get(&hlcu, "/riotclient/app-port");
     CORKI_Post(&hlcu, "/riotclient/ux-show");
+    CORKI_Post(&hlcu, "/riotclient/ux-minimize");
+    //Riot disaproves?
+    CORKI_CustomRequest(&hlcu, CORKIPost, "/lol-lobby/v2/lobby/", 
+                        "{"
+                        "\"queueId\": 430"
+                        "}"
+                        );
 }
 
