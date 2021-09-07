@@ -3,13 +3,7 @@
 #define CORKI_DEF
 #define CURL_STATICLIB
 #include <curl/curl.h>
-
-//Request Types 
-#define CORKIGet 0
-#define CORKIPost 1
-#define CORKIPut 2
-#define CORKIDelete 3
-typedef int CORKIReq;
+#include "corki_constants.h"
 
 #define CORKI_internal static;
 
@@ -19,8 +13,10 @@ struct CORKIContext
     char auth_token[128];
     char lcu_base_url[128];
 };
+
 // Populate context with LCU Url, Basic password and a initiated Curl context
 CORKI_internal int PopulateContext(CORKIContext* Context);
+CORKI_internal int GetFeaturedGame(CORKIContext* Context); // Need Implementation
 //Init HTTP and WebSockets
 int CORKI_Init(CORKIContext* Context);
 //Make a request in custom endpoint
@@ -36,6 +32,15 @@ int CORKI_Delete(CORKIContext* Context, char* Endpoint);
 
 //PUT with body request
 int CORKI_Put(CORKIContext* Context, char* Endpoint, char* Data);
+
+//Easy to use requests
+int CORKI_ChangeLane(CORKIContext* Context, CORKILane Lane);
+int CORKI_CreateLobby(CORKIContext* Context, CORKILane Lane);
+int CORKI_StartMatchSearch(CORKIContext* Context, CORKILane Lane);
+int CORKI_StopMatchSearch(CORKIContext* Context, CORKILane Lane);
+
+
+
 
 //Cleanup Curl and Websockets
 int CORKI_Cleanup(CORKIContext* Context);

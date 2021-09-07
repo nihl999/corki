@@ -1,5 +1,6 @@
 #include <stdlib.h>
-#include "hlcu.h"
+#include "windows.h"
+#include "corki.h"
 
 
 // TODO(nihilo): Implement HTTP Socket myself.
@@ -13,12 +14,17 @@ int main( int, char *[] )
     CORKI_Init(&hlcu);
     CORKI_Get(&hlcu, "/riotclient/app-port");
     CORKI_Post(&hlcu, "/riotclient/ux-show");
-    CORKI_Post(&hlcu, "/riotclient/ux-minimize");
     //Riot disaproves?
-    CORKI_CustomRequest(&hlcu, CORKIPost, "/lol-lobby/v2/lobby/", 
-                        "{"
-                        "\"queueId\": 430"
-                        "}"
-                        );
+    //CORKI_CustomRequest(&hlcu, CORKIPost, "/lol-lobby/v2/lobby/", 
+    //"{"
+    //"\"queueId\": 400"
+    //"}"
+    //);
+    CORKI_Put(&hlcu, "/lol-lobby/v2/lobby/members/localMember/position-preferences",
+              "{\"firstPreference\": \"BOTTOM\", \"secondPreference\": \"JUNGLE\"}");
+    //Sleep(3000);
+    //CORKI_Post(&hlcu, "/lol-lobby/v2/lobby/matchmaking/search");
+    //Sleep(5000);
+    //CORKI_Delete(&hlcu, "/lol-lobby/v2/lobby/matchmaking/search");
 }
 
