@@ -113,11 +113,40 @@ int CORKI_CustomRequest(CORKIContext* Context, CORKIReq RequestType, char* Endpo
             }break;
             case CORKIPut:
             {
+                curl_easy_setopt(Context->request_context, 
+                                 CURLOPT_URL, 
+                                 URL);
+                curl_easy_setopt(Context->request_context, CURLOPT_POSTFIELDSIZE, (long)strlen(Data));
+                curl_easy_setopt(Context->request_context, CURLOPT_POSTFIELDS, Data);
+                curl_easy_setopt(Context->request_context, CURLOPT_CUSTOMREQUEST, "PUT");
+                //debug option v
+                curl_easy_setopt(Context->request_context, CURLOPT_VERBOSE, 1L);
+                res = curl_easy_perform(Context->request_context);
+                if(res == CURLE_OK)
+                {
+                    curl_easy_setopt(Context->request_context, CURLOPT_URL, Context->lcu_base_url);
+                    return 1;
+                }
                 return 0;
             }break;
             case CORKIDelete:
             {
+                curl_easy_setopt(Context->request_context, 
+                                 CURLOPT_URL, 
+                                 URL);
+                curl_easy_setopt(Context->request_context, CURLOPT_CUSTOMREQUEST, "DELETE");
+                curl_easy_setopt(Context->request_context, CURLOPT_POSTFIELDSIZE, (long)strlen(Data));
+                curl_easy_setopt(Context->request_context, CURLOPT_POSTFIELDS, Data);
+                //debug option v
+                curl_easy_setopt(Context->request_context, CURLOPT_VERBOSE, 1L);
+                res = curl_easy_perform(Context->request_context);
+                if(res == CURLE_OK)
+                {
+                    curl_easy_setopt(Context->request_context, CURLOPT_URL, Context->lcu_base_url);
+                    return 1;
+                }
                 return 0;
+                
             }break;
             default:
             {
@@ -139,6 +168,16 @@ int CORKI_Get(CORKIContext* Context, char* Endpoint)
 int CORKI_Post(CORKIContext* Context, char* Endpoint)
 {
     return CORKI_CustomRequest(Context, CORKIPost, Endpoint);
+}
+
+int CORKI_Put(CORKIContext* Context, char* Endpoint, char* Data)
+{
+    return CORKI_CustomRequest(Context, CORKIPut, Endpoint, Data);
+}
+
+int CORKI_Delete(CORKIContext* Context, char* Endpoint)
+{
+    return CORKI_CustomRequest(Context, CORKIDelete, Endpoint);
 }
 
 int CORKI_Cleanup(CORKIContext* Context)
