@@ -17,5 +17,5 @@ echo %vendor%\Curl\lib
 call vcvarsall %arch%
 popd
 pushd .\bin\
-cl %opts% %code%\src\*.cpp -Fesandbox.exe %libraries% /link /LIBPATH:%vendor%\Curl\lib
+cl %opts% %code%\src\*.cpp %code%\src\corki\*cpp -Fesandbox.exe %libraries% /link /LIBPATH:%vendor%\Curl\lib
 popd
